@@ -56,10 +56,11 @@ export class LairActionManagement {
     static _createCombatant(combatant) {
 
         /* do not run if not the first GM or the feature is not enabled */
-        if (!HELPER.isFirstGM() || !HELPER.setting(MODULE.data.name, 'lairActionHelper')) return;
-
+        // if (!HELPER.isFirstGM() || !HELPER.setting(MODULE.data.name, 'lairActionHelper')) return;
+        if (!HELPER.isFirstGM()) return;
+        
         const usesLair = foundry.utils.getProperty(combatant, "actor.system.resources.lair.value");
-        const hasLairAction = !!combatant.actor?.items.find((i) => i.system?.activation?.type === "lair");
+        const hasLairAction = !!combatant.actor?.items.find((i) => i.labels?.featType === "Lair Action");
 
         /* flag this combatant as a lair actor for quick filtering */
         if (usesLair && hasLairAction) {
@@ -77,7 +78,7 @@ export class LairActionManagement {
     static _updateCombat(combat, changed) {
 
         /* do not run if not the first GM or the feature is not enabled */
-        if (!HELPER.isFirstGM() || !HELPER.setting(MODULE.data.name, 'lairActionHelper')) return;
+        if (!HELPER.isFirstGM()) return;
 
         /* only trigger lair actions on a legit turn change */
         if (!HELPER.isTurnChange(combat, changed)) return;

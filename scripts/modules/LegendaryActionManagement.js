@@ -64,7 +64,7 @@ export class LegendaryActionManagement {
         /* do not run if not the first GM, but always flag regardless of enable state */
         if (!HELPER.isFirstGM()) return;
 
-        const hasLegendary = !!combatant.actor?.items.find((i) => i.system?.activation?.type === "legendary")
+        const hasLegendary = !!combatant.actor?.items.find((i) => i.labels?.featType === "Legendary Action")
 
         /* flag this combatant as a legendary actor for quick filtering */
         if (hasLegendary) {

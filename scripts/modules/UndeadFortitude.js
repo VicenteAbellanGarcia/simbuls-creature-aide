@@ -80,8 +80,8 @@ export class UndeadFortitude {
         if (originalHp === 0 && finalHp === 0) return;
 
         // if you have midi-QOL then you'll have the applied damage
-        if (options.damageItem) {
-            hpDelta = options.damageItem.appliedDamage
+        if (options.midi) {
+            hpDelta = options.midi.amount;
         }
         
 
@@ -131,8 +131,9 @@ export class UndeadFortitude {
 
             if (saveInfo.rollSave) {
                 /* but roll the save if we need to and check */
-                const result = (await data.actor.rollAbilitySave('con', {flavor: `${HELPER.setting(MODULE.data.name, 'undeadFortName')} - DC ${saveInfo.saveDc}`, rollMode: 'gmroll'})).total;
-
+                const roll = (await data.actor.rollSavingThrow({ability: "con"}, {flavor: `${HELPER.setting(MODULE.data.name, 'undeadFortName')} - DC ${saveInfo.saveDc}`, rollMode: 'gmroll'}));
+                
+                const result = roll[0].total;
                 /* check for unexpected roll outputs (like BetterRolls) and simply output information
                 * note: result == null _should_ account for result === undefined as well.
                 */       
@@ -165,7 +166,7 @@ export class UndeadFortitude {
 
     static async _getUndeadFortitudeSave(data, options, fullCheck = false) {
 
-        let saveInfo = {};
+        let saveInfo;
         if (fullCheck) {
             /* full check where we ask for the total damage */
             saveInfo = await UndeadFortitude.fullCheck(data, options);
@@ -179,14 +180,14 @@ export class UndeadFortitude {
     }
 
     static checkRadiantCritical(options, ignoredDamageTypes) {
-        if (!options.damageItem) return false;        
-        if (options.damageItem.critical) return true;
+        if (!options.midi) return false;        
+        if (options.midi.isCritical) return true;
 
-        for (let di of options.damageItem.damageDetail) {
+        /*for (let di of options.damageItem.damageDetail) {
             for (let did of (di ?? [])) {
                 if (ignoredDamageTypes.toLowerCase().indexOf(did.type) > -1) return true;
             }
-        }
+        }*/
         return false;
     }
 

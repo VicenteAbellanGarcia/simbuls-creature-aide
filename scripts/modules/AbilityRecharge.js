@@ -63,27 +63,28 @@ export class AbilityRecharge {
         rechargeItems.forEach(AbilityRecharge._rollRecharge);
     }
 
-    static _needsRecharge(recharge = { value: 0, charged: false }) {
-        return (recharge.value !== null &&
-            (recharge.value > 0) &&
-            recharge.charged !== null &&
-            recharge.charged == false);
+    static _needsRecharge(recharge = { max: 0, spent: 0 }) {
+        if (recharge.recovery[0] == null || recharge.recovery[0].period != "recharge") return;
+        return (recharge.max !== null &&
+            (recharge.max > 0) &&
+            recharge.spent !== null &&
+            recharge.spent > 0);
     }
 
     static _collectRechargeItems(token) {
-        const rechargeItems = token.actor?.items.filter(e => AbilityRecharge._needsRecharge(e.system.recharge)) ?? [];
+        const rechargeItems = token.actor?.items.filter(e => AbilityRecharge._needsRecharge(e.system.uses)) ?? [];
 
         return rechargeItems;
     }
 
     static _rollRecharge(item) {
         const data = item.system;
-        if (!data.recharge.value) return;
+        if (!data.uses.recovery[0].formula) return;
 
         queueUpdate(async () => {
             // Roll the check
             const roll = await(new Roll("1d6").evaluate());
-            const success = roll.total >= parseInt(data.recharge.value);
+            const success = roll.total >= parseInt(data.uses.recovery[0].formula);
             const rollMode = HELPER.setting(MODULE.data.name, "hideAbilityRecharge") == true ? "blindroll" : "";
 
             // Display a Chat Message
